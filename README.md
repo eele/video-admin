@@ -1,6 +1,6 @@
 # video-admin
 
-> Admin pages
+> Admin front-end pages of video platform
 
 ## Build Setup
 
