@@ -14,15 +14,18 @@
                 <el-tab-pane label="未审核" name="nr"></el-tab-pane>
             </el-tabs>
             <el-table :data="tableData" stripe style="width: 100%">
-                <el-table-column prop="title" label="视频标题" width="180">
+                <el-table-column prop="title" label="视频标题" width="180" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="username" label="上传者" width="100">
                 </el-table-column>
                 <el-table-column prop="category" label="所属类别" width="100">
                 </el-table-column>
-                <el-table-column prop="description" label="视频描述">
+                <el-table-column prop="description" label="视频描述" show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column prop="datetime" label="上传时间" width="160">
+                    <template slot-scope="scope">
+                        {{getTime(scope.row.datetime)}}
+                    </template>
                 </el-table-column>
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
@@ -32,15 +35,21 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <el-dialog :title="opVideo.title" :visible.sync="playDialogVisible" width="45%">
+            <div style="margin-top: 30px;text-align: right">
+                <el-pagination background layout="prev, pager, next" :total="pTotal">
+                </el-pagination>
+            </div>
+
+            <el-dialog :title="opVideo.title" :visible.sync="playDialogVisible" width="600px">
+                <span>{{opVideo.description}}</span>
                 <div style="height:350px" v-if="playDialogVisible">
-                    <Player url="http://192.168.0.149/02059350d52346a0940a4eeece3462c6/02059350d52346a0940a4eeece3462c615de999b5fbd4b8682b3f820d2e3d325_/play.m3u8"/>
+                    <Player url="http://192.168.0.149/02059350d52346a0940a4eeece3462c6/02059350d52346a0940a4eeece3462c615de999b5fbd4b8682b3f820d2e3d325_/play.m3u8" />
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button type="primary" @click="playDialogVisible = false">关 闭</el-button>
                 </span>
             </el-dialog>
-            <el-dialog title="审核" :visible.sync="reviewDialogVisible" width="45%">
+            <el-dialog title="审核" :visible.sync="reviewDialogVisible" width="400px">
                 <span>是否允许视频 {{opVideo.title}} 通过审核？</span>
                 <span slot="footer" class="dialog-footer">
                     <el-button type="primary" @click="reviewDialogVisible = false;setReviewSuccess(opVideo)">是</el-button>
@@ -48,7 +57,7 @@
                     <el-button @click="reviewDialogVisible = false">暂不审核</el-button>
                 </span>
             </el-dialog>
-            <el-dialog title="提示" :visible.sync="deleteDialogVisible" width="30%">
+            <el-dialog title="提示" :visible.sync="deleteDialogVisible" width="400px">
                 <span>确定要删除视频 {{opVideo.title}} 吗？</span>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="deleteDialogVisible = false">取 消</el-button>
@@ -65,6 +74,20 @@ export default {
   components: {
     Player
   },
+  mounted() {
+    var self = this;
+    this.$axios
+      .get("/videos/p/reviewed", {
+        params: {
+          title: "",
+          pstart: this.pstart - 1,
+          psize: this.psize
+        }
+      })
+      .then(function(response) {
+        self.tableData = response.data;
+      });
+  },
   data() {
     return {
       searchInput: "",
@@ -73,22 +96,10 @@ export default {
       playDialogVisible: false,
       reviewDialogVisible: false,
       opVideo: {},
-      tableData: [
-        {
-          title: "2016-05-02 00:00:00",
-          username: "王小虎",
-          category: "王小虎",
-          description: "上海市普陀区金沙江路 1518 弄",
-          datetime: "2016-05-02 00:00:00",
-        },
-        {
-          title: "2016-05-04",
-          username: "王小虎",
-          category: "王小虎",
-          description: "上海市普陀区金沙江路 1517 弄",
-          datetime: "2016-05-02 00:00:00",
-        }
-      ]
+      tableData: [],
+      pstart: 1,
+      psize: 10,
+      pTotal: 0
     };
   },
   methods: {
@@ -100,18 +111,60 @@ export default {
       console.log(opVideo);
     },
     setReviewSuccess(opVideo) {
-      this.$message('视频 ' + opVideo.title + ' 已通过审核');
+      this.$message("视频 " + opVideo.title + " 已通过审核");
     },
     search() {
-
+      var self = this;
+      this.pstart = 1;
+      var url = "";
+      if (this.tabType == 'r') {
+          url = "/videos/p/reviewed";
+      } else {
+          url = "/videos/p/unreviewed";
+      }
+      this.$axios
+        .get(url, {
+          params: {
+            title: this.searchInput,
+            pstart: this.pstart - 1,
+            psize: this.psize
+          }
+        })
+        .then(function(response) {
+          self.tableData = response.data;
+        });
     },
     handleTableType(tab, event) {
       switch (event.target.id) {
         case "tab-r":
           this.tabType = "r";
+          var self = this;
+          this.$axios
+            .get("/videos/p/reviewed", {
+              params: {
+                title: "",
+                pstart: this.pstart - 1,
+                psize: this.psize
+              }
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
           break;
         case "tab-nr":
           this.tabType = "nr";
+          var self = this;
+          this.$axios
+            .get("/videos/p/unreviewed", {
+              params: {
+                title: "",
+                pstart: this.pstart - 1,
+                psize: this.psize
+              }
+            })
+            .then(function(response) {
+              self.tableData = response.data;
+            });
           break;
       }
     }

@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Login from './pages/login.vue'
+import Admin from './pages/main.vue'
 import Videos from './pages/videos.vue'
 import Categories from './pages/categories.vue'
 import Users from './pages/users.vue'
@@ -10,16 +12,26 @@ export const router = new Router({
     mode: 'history',
     routes: [
         {
-            path: '/videos',
-            component: Videos
+            path: '/',
+            component: Admin,
+            children: [
+                {
+                    path: 'videos',
+                    component: Videos
+                },
+                {
+                    path: 'categories',
+                    component: Categories
+                },
+                {
+                    path: 'users',
+                    component: Users
+                }
+            ]
         },
         {
-            path: '/categories',
-            component: Categories
-        },
-        {
-            path: '/users',
-            component: Users
+            path: '/login',
+            component: Login
         }
     ]
 })

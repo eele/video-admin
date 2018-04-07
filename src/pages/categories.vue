@@ -2,7 +2,7 @@
     <div>
         <div style="margin-right:100px">
             <el-input placeholder="搜索类别名..." v-model="searchInput" class="input-with-select">
-                <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-button @click="search" slot="append" icon="el-icon-search"></el-button>
             </el-input>
         </div>
         <div style="margin-top:20px">
@@ -14,7 +14,10 @@
                 </el-table-column>
                 <el-table-column prop="description" label="类别描述">
                 </el-table-column>
-                <el-table-column prop="date" label="创建时间" width="160">
+                <el-table-column prop="datetime" label="创建时间" width="160">
+                    <template slot-scope="scope">
+                        {{getTime(scope.row.datetime)}}
+                    </template>
                 </el-table-column>
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
@@ -23,7 +26,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <el-dialog :title="newCa? '新建类别':'修改类别'" :visible.sync="modifyDialogVisible" width="30%" center>
+            <el-dialog :title="newCa? '新建类别':'修改类别'" :visible.sync="modifyDialogVisible" width="400px" center>
                 <el-form label-position="right" label-width="80px" :model="opCategory">
                     <el-form-item label="类别名">
                         <el-input v-model="opCategory.name"></el-input>
@@ -37,7 +40,7 @@
                     <el-button type="primary" @click="modifyDialogVisible = false;modifyOrNew(opCategory)">确 定</el-button>
                 </span>
             </el-dialog>
-            <el-dialog title="提示" :visible.sync="deleteDialogVisible" width="30%">
+            <el-dialog title="提示" :visible.sync="deleteDialogVisible" width="400px">
                 <span>确定要删除类别 {{opCategory.name}} 吗？</span>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="deleteDialogVisible = false">取 消</el-button>
@@ -54,6 +57,18 @@ export default {
   components: {
     Player
   },
+  mounted() {
+    var self = this;
+    this.$axios
+      .get("/categories", {
+        params: {
+          name: ""
+        }
+      })
+      .then(function(response) {
+        self.tableData = response.data;
+      });
+  },
   data() {
     return {
       searchInput: "",
@@ -61,32 +76,26 @@ export default {
       deleteDialogVisible: false,
       newCa: true,
       opCategory: {},
-      tableData: [
-        {
-          id: "02059350152346a0940a4eeece3462c8",
-          name: "上海",
-          description: "上海市普陀区金沙江路 1518 弄",
-          date: "2016-05-02 00:00:00"
-        },
-        {
-          id: "02059350152346a0940a4eeece3462c8",
-          name: "上海",
-          description: "上海市普陀区金沙江路 1518 弄",
-          date: "2016-05-02 00:00:00"
-        }
-      ]
+      tableData: []
     };
   },
   methods: {
     modifyOrNew(opCategory) {
       if (this.newCa) {
-
       } else {
-
       }
     },
     search() {
-
+      var self = this;
+      this.$axios
+        .get("/categories", {
+          params: {
+            name: this.searchInput
+          }
+        })
+        .then(function(response) {
+          self.tableData = response.data;
+        });
     },
     deleteCategory(opCategory) {
       console.log(opCategory);
