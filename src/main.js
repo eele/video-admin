@@ -6,6 +6,7 @@ import Axios from 'axios'
 import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import 'material-design-icons/iconfont/material-icons.css'
+import MD5 from 'js-md5';
 
 Axios.defaults.timeout = 5000;
 // Axios.defaults.headers.common['Auth-Token'] = "";
@@ -14,6 +15,7 @@ Axios.defaults.baseURL = 'http://192.168.0.149:8080/video/service/r';
 
 Vue.prototype.$axios = Axios;
 Vue.prototype.qs = QS;
+Vue.prototype.md5 = MD5;
 
 //获取cookie、
 Vue.prototype.getCookie = function (name) {

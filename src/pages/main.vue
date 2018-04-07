@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import { Loading } from "element-ui";
 export default {
   data() {
     return {
@@ -58,12 +59,21 @@ export default {
     };
   },
   mounted() {
+    var loadingInstance = Loading.service();
     var self = this;
     this.$axios
       .get("/users/admin/" + this.getCookie("uid"))
       .then(function(response) {
         self.admin = response.data.username;
+        self.$nextTick(() => {
+          loadingInstance.close();
+        });
       })
+      .catch(function(error) {
+        self.$nextTick(() => {
+          loadingInstance.close();
+        });
+      });
   },
   methods: {
     getRootPath() {
@@ -75,13 +85,24 @@ export default {
       if (pwd.newPwd != pwd.conPwd) {
         this.$message.error("新密码和确认密码不一致");
       } else {
-        this.modifyDialogVisible = false;
+        var self = this;
+        this.$axios
+          .put(
+            "/users/admin/" + this.getCookie("uid") + "/password",
+            this.qs.stringify({
+              pwd: this.md5(pwd.newPwd)
+            })
+          )
+          .then(function(response) {
+            self.modifyDialogVisible = false;
+            self.$message("密码修改成功");
+          });
       }
     },
     logout() {
       this.delCookie("token");
       this.delCookie("uid");
-      location.href = '/login';
+      location.href = "/login";
     }
   }
 };

@@ -31,7 +31,7 @@ export default {
           "/sessions/admin",
           this.qs.stringify({
             username: admin.username,
-            password: admin.password
+            password: this.md5(admin.password)
           })
         )
         .then(function(response) {

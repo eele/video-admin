@@ -74,9 +74,26 @@ export default {
     };
   },
   methods: {
-    resetPwd(opUser) {},
+    resetPwd(opUser) {
+      var self = this;
+      this.$axios
+        .put(
+          "/users/" + opUser.id + "/password",
+          this.qs.stringify({
+            pwd: this.md5('8888')
+          })
+        )
+        .then(function(response) {
+          self.$message("用户 " + opUser.username + " 的密码已重置为 8888");
+        });
+    },
     deleteUser(opUser) {
-      console.log(opUser);
+      var self = this;
+      this.$axios
+        .delete("/users/" + opUser.id + "/alldata")
+        .then(function(response) {
+          self.search();
+        });
     },
     search() {
       var self = this;

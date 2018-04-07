@@ -52,8 +52,8 @@
             <el-dialog title="审核" :visible.sync="reviewDialogVisible" width="400px">
                 <span>是否允许视频 {{opVideo.title}} 通过审核？</span>
                 <span slot="footer" class="dialog-footer">
-                    <el-button type="primary" @click="reviewDialogVisible = false;setReviewSuccess(opVideo)">是</el-button>
-                    <el-button type="info" @click="reviewDialogVisible = false">否</el-button>
+                    <el-button type="primary" @click="reviewDialogVisible = false;setReviewPass(true, opVideo)">是</el-button>
+                    <el-button type="info" @click="reviewDialogVisible = false;setReviewPass(false, opVideo)">否</el-button>
                     <el-button @click="reviewDialogVisible = false">暂不审核</el-button>
                 </span>
             </el-dialog>
@@ -79,6 +79,7 @@ export default {
     this.$axios
       .get("/videos/p/reviewed", {
         params: {
+          uid: this.$route.query.uid == undefined ? "" : this.$route.query.uid,
           title: "",
           pstart: this.pstart - 1,
           psize: this.psize
@@ -108,23 +109,53 @@ export default {
       this.playDialogVisible = true;
     },
     deleteVideo(opVideo) {
-      console.log(opVideo);
+      var self = this;
+      this.$axios.delete("/videos/" + opVideo.id).then(function(response) {
+        self.search();
+      });
     },
-    setReviewSuccess(opVideo) {
-      this.$message("视频 " + opVideo.title + " 已通过审核");
+    setReviewPass(result, opVideo) {
+      var self = this;
+      if (result) {
+        this.$axios
+          .put(
+            "/videos/" + opVideo.id + "/review",
+            this.qs.stringify({
+              result: true
+            })
+          )
+          .then(function(response) {
+            self.search();
+            self.$message("视频 " + opVideo.title + " 已通过审核");
+          });
+      } else {
+        this.$axios
+          .put(
+            "/videos/" + opVideo.id + "/review",
+            this.qs.stringify({
+              result: false
+            })
+          )
+          .then(function(response) {
+            self.search();
+            self.$message("视频 " + opVideo.title + " 未通过审核");
+          });
+      }
     },
     search() {
       var self = this;
       this.pstart = 1;
       var url = "";
-      if (this.tabType == 'r') {
-          url = "/videos/p/reviewed";
+      if (this.tabType == "r") {
+        url = "/videos/p/reviewed";
       } else {
-          url = "/videos/p/unreviewed";
+        url = "/videos/p/unreviewed";
       }
       this.$axios
         .get(url, {
           params: {
+            uid:
+              this.$route.query.uid == undefined ? "" : this.$route.query.uid,
             title: this.searchInput,
             pstart: this.pstart - 1,
             psize: this.psize
@@ -142,6 +173,10 @@ export default {
           this.$axios
             .get("/videos/p/reviewed", {
               params: {
+                uid:
+                  this.$route.query.uid == undefined
+                    ? ""
+                    : this.$route.query.uid,
                 title: "",
                 pstart: this.pstart - 1,
                 psize: this.psize
@@ -157,6 +192,10 @@ export default {
           this.$axios
             .get("/videos/p/unreviewed", {
               params: {
+                uid:
+                  this.$route.query.uid == undefined
+                    ? ""
+                    : this.$route.query.uid,
                 title: "",
                 pstart: this.pstart - 1,
                 psize: this.psize

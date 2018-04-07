@@ -28,6 +28,7 @@
     "element-ui": "^2.3.3",
     "file-loader": "^1.1.11",
     "hls.js": "^0.9.1",
+    "js-md5": "^0.7.3",
     "material-design-icons": "^3.0.1",
     "node-sass": "^4.5.3",
     "qs": "^6.5.1",

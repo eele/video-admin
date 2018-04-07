@@ -82,7 +82,25 @@ export default {
   methods: {
     modifyOrNew(opCategory) {
       if (this.newCa) {
+        var self = this;
+        this.$axios
+          .post(
+            "/categories",
+            this.qs.stringify({
+              name: opCategory.name,
+              description: opCategory.description
+            })
+          )
+          .then(function(response) {
+            self.search();
+          });
       } else {
+        var self = this;
+        this.$axios
+          .put("/categories/" + opCategory.id)
+          .then(function(response) {
+            self.search();
+          });
       }
     },
     search() {
@@ -98,7 +116,12 @@ export default {
         });
     },
     deleteCategory(opCategory) {
-      console.log(opCategory);
+      var self = this;
+      this.$axios
+        .delete("/categories/" + opCategory.id)
+        .then(function(response) {
+          self.search();
+        });
     }
   }
 };
