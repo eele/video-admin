@@ -11,11 +11,12 @@ import MD5 from 'js-md5';
 Axios.defaults.timeout = 5000;
 // Axios.defaults.headers.common['Auth-Token'] = "";
 Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-Axios.defaults.baseURL = 'http://192.168.0.149:8080/video/service/r';
+Axios.defaults.baseURL = 'https://v.eele.io:8443/video/service/r';
 
 Vue.prototype.$axios = Axios;
 Vue.prototype.qs = QS;
 Vue.prototype.md5 = MD5;
+Vue.prototype.playServerURL = 'https://v.eele.io:8446';
 
 //获取cookie、
 Vue.prototype.getCookie = function (name) {

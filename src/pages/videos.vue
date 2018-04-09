@@ -43,7 +43,7 @@
             <el-dialog :title="opVideo.title" :visible.sync="playDialogVisible" width="600px">
                 <span>{{opVideo.description}}</span>
                 <div style="height:350px" v-if="playDialogVisible">
-                    <Player url="http://192.168.0.149/02059350d52346a0940a4eeece3462c6/02059350d52346a0940a4eeece3462c615de999b5fbd4b8682b3f820d2e3d325_/play.m3u8" />
+                    <Player :url="this.playServerURL + '/' + opVideo.uid + '/' + opVideo.id + '_/play.m3u8'" />
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button type="primary" @click="playDialogVisible = false">关 闭</el-button>
