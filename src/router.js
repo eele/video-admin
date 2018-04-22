@@ -13,6 +13,9 @@ export const router = new Router({
     routes: [
         {
             path: '/',
+            meta: {
+                requireAuth: true
+            },
             component: Admin,
             children: [
                 {
@@ -31,7 +34,25 @@ export const router = new Router({
         },
         {
             path: '/login',
+            meta: {
+                requireAuth: false
+            },
             component: Login
         }
     ]
 })
+
+//  判断是否需要登录权限 以及是否登录
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(res => res.meta.requireAuth)) {// 判断是否需要登录权限
+      if (Vue.prototype.getCookie('uid')) {// 判断是否登录
+        next()
+      } else {// 没登录则跳转到登录界面
+        next({
+          path: '/login'
+        })
+      }
+    } else {
+      next()
+    }
+  })
