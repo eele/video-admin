@@ -87,6 +87,7 @@ export default {
       })
       .then(function(response) {
         self.tableData = response.data;
+        self.pTotal = response.data[0].num
       });
   },
   data() {
